@@ -107,6 +107,7 @@
                 >
                 <v-divider class="mx-4" inset vertical></v-divider>
                 <v-spacer></v-spacer>
+                <!--Registrar-->
                 <v-dialog v-model="dialog" max-width="700px">
                   <template v-slot:activator="{ on, attrs }">
                     <v-btn
@@ -240,6 +241,134 @@
                         </v-btn>
                         <v-btn color="blue darken-1" text @click="save">
                           Guardar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-form>
+                  </v-card>
+                </v-dialog>
+                <!--editar-->
+                <v-dialog v-model="dialogEdit" max-width="700px">
+                  <v-card>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+                      <v-card-title>
+                        <span class="text-h5">{{ actionBoton }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-menu
+                                ref="menu"
+                                v-model="menu"
+                                :close-on-content-click="false"
+                                :return-value.sync="editedItem.date"
+                                transition="scale-transition"
+                                offset-y
+                                min-width="auto"
+                              >
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-text-field
+                                    v-model="editedItem.date"
+                                    label="Fecha"
+                                    prepend-icon="mdi-calendar"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                  ></v-text-field>
+                                </template>
+                                <v-date-picker
+                                  v-model="editedItem.date"
+                                  no-title
+                                  scrollable
+                                  :min="minimo"
+                                  :max="maximo"
+                                >
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="menu = false"
+                                  >
+                                    Cancel
+                                  </v-btn>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="$refs.menu.save(editedItem.date)"
+                                  >
+                                    OK
+                                  </v-btn>
+                                </v-date-picker>
+                              </v-menu>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="8">
+                              <v-text-field
+                                v-model="editedItem.name"
+                                :rules="[rules.required, rules.counter]"
+                                label="Nombre Nefrólogo"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-text-field
+                                v-model="editedItem.med"
+                                label="Medicamento"
+                                :maxlength="maxdat"
+                                disabled
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.dos"
+                                :items="dosisE"
+                                :rules="[rules.required]"
+                                label="Dosis (UI)"
+                              ></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.via"
+                                :rules="[rules.required, rules.counter]"
+                                :items="via"
+                                label="Via Administración"
+                              ></v-select>
+                            </v-col>
+                            <!--HIERRO-->
+                            <v-col cols="12" sm="6" md="4">
+                              <v-text-field
+                                v-model="editedItem.medHierro"
+                                label="Medicamento"
+                                :maxlength="maxdat"
+                                disabled
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.dosHierro"
+                                :items="dosisH"
+                                :rules="[rules.required]"
+                                label="Dosis (UI)"
+                              ></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.viaHierro"
+                                :rules="[rules.required, rules.counter]"
+                                :items="via"
+                                label="Via Administración"
+                              ></v-select>
+                            </v-col>
+                            <!--HIERRO-->
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue darken-1" text @click="closeEdit">
+                          Cancelar
+                        </v-btn>
+                        <v-btn color="blue darken-1" text @click="edit">
+                          Editar
                         </v-btn>
                       </v-card-actions>
                     </v-form>
@@ -472,6 +601,7 @@
             </template>
           </v-data-table>
         </v-card>
+        
       </v-container>
     </div>
   </div>
@@ -484,6 +614,8 @@ import axios from "axios";
 
 export default {
   data: () => ({
+    datosEdit:"",
+    saveEdit: "",
     dialogAviso: false,
     dataAdmin: "",
     datosPaciente: [],
@@ -515,6 +647,7 @@ export default {
       .toISOString()
       .substr(0, 10),
     dialog: false,
+    dialogEdit: false,
     formAdmi: false,
     dialogDelete: false,
     vista: "",
@@ -678,9 +811,23 @@ export default {
     },
 
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem = Object.assign({}, item);
-      this.dialog = true;
+      this.saveEdit="edit"
+      console.log("item",item)
+      this.botonEditar="1";
+      this.editedIndex
+      //this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem.date=item.fechaPres
+      this.editedItem.name=item.nomNefro
+      this.editedItem.dos=item.dosisPres
+      this.editedItem.dosHierro=item.dosisHiePres
+      this.editedItem.med=item.medPres
+      this.editedItem.medHierro=item.medHiePres
+      this.editedItem.via=item.viaAdmPres
+      this.editedItem.viaHierro=item.viaAdmHiePres
+      //this.editedItem = Object.assign({}, item);
+      console.log("editedItem",this.editedItem)
+      this.dialogEdit = true;
+      this.datosEdit=item.url
     },
 
     deleteItem(item) {
@@ -703,8 +850,21 @@ export default {
       });
     },
 
+    edit() {
+      console.log("esto es para editar",this.datosEdit)
+      this.dialogEdit=false;
+    },
+    
     close() {
       this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeEdit() {
+      this.dialogEdit = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
