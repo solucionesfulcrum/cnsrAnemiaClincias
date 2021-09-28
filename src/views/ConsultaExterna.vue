@@ -759,6 +759,7 @@
 import NavBar from "../components/navbar/NavBar.vue";
 import NavBarVertical from "../components/navbar/NavBarVertical.vue";
 import axios from "axios";
+export const RUTA_SERVIDOR = process.env.VUE_APP_RUTA_API;
 
 export default {
   data: () => ({
@@ -864,14 +865,14 @@ export default {
         this.dialogAviso = true;
       } else {
         axios
-          .post("http://10.0.52.70:8080/api/token/", {
+          .post(RUTA_SERVIDOR+"/api/token/", {
             username: "cnsr",
             password: "123456",
           })
           .then((response) => {
             this.auth = "Bearer " + response.data.access;
             axios
-              .get("http://10.0.52.70:8080/paciente/?search=" + this.setDni, {
+              .get(RUTA_SERVIDOR+"/paciente/?search=" + this.setDni, {
                 headers: { Authorization: this.auth },
               })
               .then((res) => {
@@ -1029,7 +1030,7 @@ export default {
       
 
       axios
-        .post("http://10.0.52.70:8080/api/token/", {
+        .post(RUTA_SERVIDOR+"/api/token/", {
           username: "cnsr",
           password: "123456",
         })
@@ -1037,7 +1038,7 @@ export default {
           this.auth = "Bearer " + response.data.access;
           axios
             .patch(
-              "http://10.0.52.70:8080/presAnemia/" +
+              RUTA_SERVIDOR+"/presAnemia/" +
                 this.datosEdit.split("/")[4] +
                 "/",
               {
@@ -1055,6 +1056,7 @@ export default {
               }
             )
             .then((res) => {
+              this.dialogDataApi = true;
               console.log("exito", res.status);
               this.close();
               this.pres();
@@ -1073,15 +1075,8 @@ export default {
     },
 
     editarAdm() {
-      console.log(
-        "esto es para editar administracion",
-        this.datosEdit.split("/")[4]
-      );
-
-      console.log("datos de administra",this.editedItem)
-
       axios
-          .post("http://10.0.52.70:8080/api/token/", {
+          .post(RUTA_SERVIDOR+"/api/token/", {
             username: "cnsr",
             password: "123456",
           })
@@ -1089,7 +1084,7 @@ export default {
             this.auth = "Bearer " + response.data.access;
             axios
               .patch(
-                "http://10.0.52.70:8080/adminAnemia/"+this.datosEdit.split("/")[4]+"/",
+                RUTA_SERVIDOR+"/adminAnemia/"+this.datosEdit.split("/")[4]+"/",
                 {
                   fechaAdmi: this.editedItem.date,
                   nomEnfer: this.editedItem.name,
@@ -1106,6 +1101,7 @@ export default {
               )
               .then((res) => {
                 console.log("exito", res.status);
+                this.dialogDataApi = true;
                 this.adm();
                 this.dialogEditAdm = false;
               })
@@ -1160,7 +1156,7 @@ export default {
       } else {
         console.log("administraaaaaaaaa", this.editedItem);
         axios
-          .post("http://10.0.52.70:8080/api/token/", {
+          .post(RUTA_SERVIDOR+"/api/token/", {
             username: "cnsr",
             password: "123456",
           })
@@ -1168,10 +1164,10 @@ export default {
             this.auth = "Bearer " + response.data.access;
             axios
               .post(
-                "http://10.0.52.70:8080/adminAnemia/",
+                RUTA_SERVIDOR+"/adminAnemia/",
                 {
                   presAnemia:
-                    "http://10.0.52.70:8080/presAnemia/" + this.dataAdmi + "/",
+                    RUTA_SERVIDOR+"/presAnemia/" + this.dataAdmi + "/",
                   fechaAdmi: this.editedItem.date,
                   nomEnfer: this.editedItem.name,
                   medAdmi: this.editedItem.med,
@@ -1219,7 +1215,7 @@ export default {
         console.log("validate");
       } else {
         axios
-          .post("http://10.0.52.70:8080/api/token/", {
+          .post(RUTA_SERVIDOR+"/api/token/", {
             username: "cnsr",
             password: "123456",
           })
@@ -1227,7 +1223,7 @@ export default {
             this.auth = "Bearer " + response.data.access;
             axios
               .post(
-                "http://10.0.52.70:8080/presAnemia/",
+                RUTA_SERVIDOR+"/presAnemia/",
                 {
                   paciente: this.datosPaciente[0].url,
                   fechaPres: this.editedItem.date,
@@ -1270,7 +1266,7 @@ export default {
       this.dialogDataApi = true;
 
       axios
-        .post("http://10.0.52.70:8080/api/token/", {
+        .post(RUTA_SERVIDOR+"/api/token/", {
           username: "cnsr",
           password: "123456",
         })
@@ -1278,7 +1274,7 @@ export default {
           this.auth = "Bearer " + response.data.access;
           axios
             .get(
-              "http://10.0.52.70:8080/presAnemia/?search=" +
+              RUTA_SERVIDOR+"/presAnemia/?search=" +
                 this.datosPaciente[0].url.split("/")[4],
               {
                 headers: { Authorization: this.auth },
@@ -1312,7 +1308,7 @@ export default {
       //consulta api datos Prescripcion
       console.log("datos desert", this.desserts);
       axios
-        .post("http://10.0.52.70:8080/api/token/", {
+        .post(RUTA_SERVIDOR+"/api/token/", {
           username: "cnsr",
           password: "123456",
         })
@@ -1320,7 +1316,7 @@ export default {
           this.auth = "Bearer " + response.data.access;
           axios
             .get(
-              "http://10.0.52.70:8080/adminAnemia/?search=" +
+              RUTA_SERVIDOR+"/adminAnemia/?search=" +
                 this.datosPaciente[0].url.split("/")[4],
               {
                 headers: { Authorization: this.auth },

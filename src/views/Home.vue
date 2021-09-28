@@ -68,6 +68,7 @@
 
 <script>
 import axios from "axios";
+export const RUTA_SERVIDOR = process.env.VUE_APP_RUTA_API;
 
 export default {
   data() {
@@ -87,7 +88,7 @@ export default {
       ingresar() {
       this.dialog = true  
       axios
-        .post("http://10.0.52.70:8080/api/token/", {
+        .post(RUTA_SERVIDOR+"/api/token/", {
           username: this.usuario,
           password: this.contra,
         })
