@@ -49,7 +49,12 @@
               ></v-text-field>
             </v-col>
             <v-col cols="12" md="7">
-              <v-btn class="mt-10" icon color="#1973a5" @click="buscarPacicente">
+              <v-btn
+                class="mt-10"
+                icon
+                color="#1973a5"
+                @click="buscarPacicente"
+              >
                 <v-icon>mdi-magnify</v-icon>
               </v-btn>
             </v-col>
@@ -571,6 +576,150 @@
                     </v-form>
                   </v-card>
                 </v-dialog>
+                <!--Editar administracion-->
+                <v-dialog v-model="dialogEditAdm" max-width="700px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="#1973a5"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      {{ actionBoton }}
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+                      <v-card-title>
+                        <span class="text-h5">{{ actionBoton }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-menu
+                                ref="menu"
+                                v-model="menu"
+                                :close-on-content-click="false"
+                                :return-value.sync="editedItem.date"
+                                transition="scale-transition"
+                                offset-y
+                                min-width="auto"
+                              >
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-text-field
+                                    v-model="editedItem.date"
+                                    label="Fecha"
+                                    prepend-icon="mdi-calendar"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                  ></v-text-field>
+                                </template>
+                                <v-date-picker
+                                  v-model="editedItem.date"
+                                  no-title
+                                  scrollable
+                                  :min="minimo"
+                                  :max="maximo"
+                                >
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="menu = false"
+                                  >
+                                    Cancel
+                                  </v-btn>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="$refs.menu.save(editedItem.date)"
+                                  >
+                                    OK
+                                  </v-btn>
+                                </v-date-picker>
+                              </v-menu>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="8">
+                              <v-text-field
+                                v-model="editedItem.name"
+                                :rules="[rules.required, rules.counter]"
+                                label="Nombre Completo Enfermera"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-text-field
+                                v-model="editedItem.med"
+                                label="Medicamento"
+                                :maxlength="maxdat"
+                                disabled
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.dos"
+                                :items="dosisE"
+                                :rules="[rules.required]"
+                                label="Dosis (UI)-Administrada"
+                              ></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.via"
+                                :rules="[rules.required, rules.counter]"
+                                :items="via"
+                                label="Via Administración"
+                              ></v-select>
+                            </v-col>
+                            <!--HIERRO-->
+                            <v-col cols="12" sm="6" md="4">
+                              <v-text-field
+                                v-model="editedItem.medHierro"
+                                label="Medicamento"
+                                :maxlength="maxdat"
+                                disabled
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.dosHierro"
+                                :items="dosisH"
+                                :rules="[rules.required]"
+                                label="Dosis (UI)-Administrada"
+                              ></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-select
+                                v-model="editedItem.viaHierro"
+                                :rules="[rules.required, rules.counter]"
+                                :items="via"
+                                label="Via Administración"
+                              ></v-select>
+                            </v-col>
+                            <!--HIERRO-->
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="closeEditFormAdmin"
+                        >
+                          Cancelar
+                        </v-btn>
+                        <v-btn color="blue darken-1" text @click="editarAdm">
+                          Editar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-form>
+                  </v-card>
+                </v-dialog>
+                <!--fin de edicion de administracion-->
                 <v-dialog v-model="dialogDelete" max-width="500px">
                   <v-card>
                     <v-card-title class="text-h5"
@@ -594,14 +743,13 @@
               </v-toolbar>
             </template>
             <template v-slot:[`item.actions`]="{ item }">
-              <v-icon small class="mr-2" @click="editItem(item)">
+              <v-icon small class="mr-2" @click="editItemAdm(item)">
                 mdi-pencil
               </v-icon>
               <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
             </template>
           </v-data-table>
         </v-card>
-        
       </v-container>
     </div>
   </div>
@@ -614,8 +762,7 @@ import axios from "axios";
 
 export default {
   data: () => ({
-    datosEdit:"",
-    saveEdit: "",
+    datosEdit: "",
     dialogAviso: false,
     dataAdmin: "",
     datosPaciente: [],
@@ -650,6 +797,7 @@ export default {
     dialogEdit: false,
     formAdmi: false,
     dialogDelete: false,
+    dialogEditAdm: false,
     vista: "",
     actionBoton: "nueva",
     headers: [],
@@ -811,23 +959,41 @@ export default {
     },
 
     editItem(item) {
-      this.saveEdit="edit"
-      console.log("item",item)
-      this.botonEditar="1";
-      this.editedIndex
+      console.log("item", item);
+      //this.botonEditar = "1";
+      //this.editedIndex;
       //this.editedIndex = this.desserts.indexOf(item);
-      this.editedItem.date=item.fechaPres
-      this.editedItem.name=item.nomNefro
-      this.editedItem.dos=item.dosisPres
-      this.editedItem.dosHierro=item.dosisHiePres
-      this.editedItem.med=item.medPres
-      this.editedItem.medHierro=item.medHiePres
-      this.editedItem.via=item.viaAdmPres
-      this.editedItem.viaHierro=item.viaAdmHiePres
+      this.editedItem.date = item.fechaPres;
+      this.editedItem.name = item.nomNefro;
+      this.editedItem.dos = item.dosisPres;
+      this.editedItem.dosHierro = item.dosisHiePres;
+      this.editedItem.med = item.medPres;
+      this.editedItem.medHierro = item.medHiePres;
+      this.editedItem.via = item.viaAdmPres;
+      this.editedItem.viaHierro = item.viaAdmHiePres;
       //this.editedItem = Object.assign({}, item);
-      console.log("editedItem",this.editedItem)
+      console.log("editedItem", this.editedItem);
       this.dialogEdit = true;
-      this.datosEdit=item.url
+      this.datosEdit = item.url;
+    },
+
+    editItemAdm(item) {
+      console.log("item", item);
+      //this.botonEditar = "1";
+      //this.editedIndex;
+      //this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem.date = item.fechaAdmi;
+      this.editedItem.name = item.nomEnfer;
+      this.editedItem.dos = item.dosisAdmi;
+      this.editedItem.dosHierro = item.dosisHieAdmi;
+      this.editedItem.med = item.medAdmi;
+      this.editedItem.medHierro = item.medHieAdmi;
+      this.editedItem.via = item.viaAdm;
+      this.editedItem.viaHierro = item.viaAdmHierro;
+      //this.editedItem = Object.assign({}, item);
+      //console.log("editedItem", this.editedItem);
+       this.dialogEditAdm = true
+      this.datosEdit = item.url;
     },
 
     deleteItem(item) {
@@ -844,18 +1010,73 @@ export default {
 
     closeFormAdmin() {
       this.dialog = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
+      //this.$nextTick(() => {
+       // this.editedItem = Object.assign({}, this.defaultItem);
+       // this.editedIndex = -1;
+     // });
+    },
+
+    closeEditFormAdmin(){
+      this.dialogEditAdm = false;
     },
 
     edit() {
+      console.log("esto es para editar", this.datosEdit.split("/")[4]);
+      
 
-      console.log("esto es para editar",this.datosEdit.split("/")[4])
-      this.dialogEdit=false;
+      axios
+        .post("http://10.0.52.70:8080/api/token/", {
+          username: "cnsr",
+          password: "123456",
+        })
+        .then((response) => {
+          this.auth = "Bearer " + response.data.access;
+          axios
+            .patch(
+              "http://10.0.52.70:8080/presAnemia/" +
+                this.datosEdit.split("/")[4] +
+                "/",
+              {
+                fechaPres: this.editedItem.date,
+                nomNefro: this.editedItem.name,
+                medPres: this.editedItem.med,
+                dosisPres: this.editedItem.dos,
+                medHiePres: this.editedItem.medHierro,
+                dosisHiePres: this.editedItem.dosHierro,
+                viaAdmPres: this.editedItem.via,
+                viaAdmHiePres: this.editedItem.viaHierro,
+              },
+              {
+                headers: { Authorization: this.auth },
+              }
+            )
+            .then((res) => {
+              console.log("exito", res.status);
+              this.close();
+              this.pres();
+              this.dialogEdit = false;
+            })
+            .catch((res) => {
+              console.warn("Error:", res);
+              this.dialog = false;
+            });
+        })
+        .catch((response) => {
+          response === 404
+            ? console.warn("lo sientimos no tenemos servicios")
+            : console.warn("Error:", response);
+        });
+    },
 
-       axios
+    editarAdm() {
+      console.log(
+        "esto es para editar administracion",
+        this.datosEdit.split("/")[4]
+      );
+
+      console.log("datos de administra",this.editedItem)
+
+      axios
           .post("http://10.0.52.70:8080/api/token/", {
             username: "cnsr",
             password: "123456",
@@ -864,16 +1085,16 @@ export default {
             this.auth = "Bearer " + response.data.access;
             axios
               .patch(
-                "http://10.0.52.70:8080/presAnemia/"+this.datosEdit.split("/")[4]+"/",
+                "http://10.0.52.70:8080/adminAnemia/"+this.datosEdit.split("/")[4]+"/",
                 {
-                  fechaPres: this.editedItem.date,
-                  nomNefro: this.editedItem.name,
-                  medPres: this.editedItem.med,
-                  dosisPres: this.editedItem.dos,
+                  fechaAdmi: this.editedItem.date,
+                  nomEnfer: this.editedItem.name,
+                  medAdmi: this.editedItem.med,
+                  dosisAdmi: this.editedItem.dos,
                   medHiePres: this.editedItem.medHierro,
-                  dosisHiePres: this.editedItem.dosHierro,
-                  viaAdmPres: this.editedItem.via,
-                  viaAdmHiePres: this.editedItem.viaHierro,
+                  dosisHieAdmi: this.editedItem.dosHierro,
+                  viaAdm: this.editedItem.via,
+                  viaAdmHierro: this.editedItem.viaHierro,
                 },
                 {
                   headers: { Authorization: this.auth },
@@ -881,12 +1102,12 @@ export default {
               )
               .then((res) => {
                 console.log("exito", res.status);
-                this.close();
-                this.pres();
+                this.adm();
+                this.dialogEditAdm = false;
               })
               .catch((res) => {
                 console.warn("Error:", res);
-                this.dialog = false;
+                this.dialogEditAdm = false;
               });
           })
           .catch((response) => {
@@ -895,7 +1116,7 @@ export default {
               : console.warn("Error:", response);
           });
     },
-    
+
     close() {
       this.dialog = false;
       this.$nextTick(() => {
@@ -929,7 +1150,7 @@ export default {
         !this.editedItem.via ||
         !this.editedItem.dosHierro ||
         !this.editedItem.viaHierro ||
-        !this.editedItem.medHierro 
+        !this.editedItem.medHierro
       ) {
         this.$refs.form.validate();
       } else {
@@ -988,7 +1209,7 @@ export default {
         !this.editedItem.via ||
         !this.editedItem.dosHierro ||
         !this.editedItem.viaHierro ||
-        !this.editedItem.medHierro 
+        !this.editedItem.medHierro
       ) {
         this.$refs.form.validate();
         console.log("validate");
