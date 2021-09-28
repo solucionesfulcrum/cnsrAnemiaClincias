@@ -851,8 +851,49 @@ export default {
     },
 
     edit() {
-      console.log("esto es para editar",this.datosEdit)
+
+      console.log("esto es para editar",this.datosEdit.split("/")[4])
       this.dialogEdit=false;
+
+       axios
+          .post("http://10.0.52.70:8080/api/token/", {
+            username: "cnsr",
+            password: "123456",
+          })
+          .then((response) => {
+            this.auth = "Bearer " + response.data.access;
+            axios
+              .patch(
+                "http://10.0.52.70:8080/presAnemia/"+this.datosEdit.split("/")[4]+"/",
+                {
+                  fechaPres: this.editedItem.date,
+                  nomNefro: this.editedItem.name,
+                  medPres: this.editedItem.med,
+                  dosisPres: this.editedItem.dos,
+                  medHiePres: this.editedItem.medHierro,
+                  dosisHiePres: this.editedItem.dosHierro,
+                  viaAdmPres: this.editedItem.via,
+                  viaAdmHiePres: this.editedItem.viaHierro,
+                },
+                {
+                  headers: { Authorization: this.auth },
+                }
+              )
+              .then((res) => {
+                console.log("exito", res.status);
+                this.close();
+                this.pres();
+              })
+              .catch((res) => {
+                console.warn("Error:", res);
+                this.dialog = false;
+              });
+          })
+          .catch((response) => {
+            response === 404
+              ? console.warn("lo sientimos no tenemos servicios")
+              : console.warn("Error:", response);
+          });
     },
     
     close() {
