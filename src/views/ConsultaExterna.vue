@@ -1010,14 +1010,18 @@ export default {
 
     closeFormAdmin() {
       this.dialog = false;
-      //this.$nextTick(() => {
-       // this.editedItem = Object.assign({}, this.defaultItem);
-       // this.editedIndex = -1;
-     // });
+      this.$nextTick(() => {
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedIndex = -1;
+      });
     },
 
     closeEditFormAdmin(){
       this.dialogEditAdm = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
     },
 
     edit() {
