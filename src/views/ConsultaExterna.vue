@@ -262,8 +262,8 @@
                           <v-row>
                             <v-col cols="12" sm="6" md="4">
                               <v-menu
-                                ref="menu"
-                                v-model="menu"
+                                ref="menu2"
+                                v-model="menu2"
                                 :close-on-content-click="false"
                                 :return-value.sync="editedItem.date"
                                 transition="scale-transition"
@@ -291,14 +291,14 @@
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="menu = false"
+                                    @click="menu2 = false"
                                   >
                                     Cancel
                                   </v-btn>
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="$refs.menu.save(editedItem.date)"
+                                    @click="$refs.menu2.save(editedItem.date)"
                                   >
                                     OK
                                   </v-btn>
@@ -598,8 +598,8 @@
                           <v-row>
                             <v-col cols="12" sm="6" md="4">
                               <v-menu
-                                ref="menu"
-                                v-model="menu"
+                                ref="menu2"
+                                v-model="menu2"
                                 :close-on-content-click="false"
                                 :return-value.sync="editedItem.date"
                                 transition="scale-transition"
@@ -627,14 +627,14 @@
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="menu = false"
+                                    @click="menu2 = false"
                                   >
                                     Cancel
                                   </v-btn>
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="$refs.menu.save(editedItem.date)"
+                                    @click="$refs.menu2.save(editedItem.date)"
                                   >
                                     OK
                                   </v-btn>
@@ -897,8 +897,8 @@
                           <v-row>
                             <v-col cols="12" sm="6" md="4">
                               <v-menu
-                                ref="menu"
-                                v-model="menu"
+                                ref="menu2"
+                                v-model="menu2"
                                 :close-on-content-click="false"
                                 :return-value.sync="editedItem.date"
                                 transition="scale-transition"
@@ -926,14 +926,14 @@
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="menu = false"
+                                    @click="menu2 = false"
                                   >
                                     Cancel
                                   </v-btn>
                                   <v-btn
                                     text
                                     color="primary"
-                                    @click="$refs.menu.save(editedItem.date)"
+                                    @click="$refs.menu2.save(editedItem.date)"
                                   >
                                     OK
                                   </v-btn>
@@ -1432,9 +1432,9 @@ export default {
               }
             )
             .then((res) => {
-              console.log("exito", res.status);
-              this.close();
+              console.log("exito", res.status);              
               this.dialogDataApi = true;
+              this.close();
               this.exclu();
               this.dialogEditExclu = false;
             })
