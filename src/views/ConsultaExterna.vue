@@ -82,13 +82,12 @@
         <v-card
           class="mx-auto my-5"
           max-width="900"
-          v-if="adminForm == '0' || adminForm == '1'"
+          v-if="adminForm == '0' || adminForm == '1' || adminForm == '2'"
         >
           <v-tabs background-color="#1973a5" center-active dark>
             <v-tab @click="pres">Prescripción</v-tab>
             <v-tab @click="adm">Administración</v-tab>
             <v-tab @click="exclu">Exclusión (MES)</v-tab>
-            <v-tab @click="mov">Movimientos (MES)</v-tab>
           </v-tabs>
         </v-card>
 
@@ -405,7 +404,7 @@
               <v-icon small class="mr-2" @click="editItem(item)">
                 mdi-pencil
               </v-icon>
-              <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+              <!--<v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>-->
             </template>
           </v-data-table>
         </v-card>
@@ -746,7 +745,268 @@
               <v-icon small class="mr-2" @click="editItemAdm(item)">
                 mdi-pencil
               </v-icon>
-              <v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>
+              <!--<v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>-->
+            </template>
+          </v-data-table>
+        </v-card>
+
+        <v-card class="mx-auto my-5" max-width="900" v-if="adminForm == '2'">
+          <v-data-table
+            :headers="headers"
+            :items="desserts"
+            class="elevation-1"
+          >
+            <template v-slot:top>
+              <v-toolbar flat>
+                <v-toolbar-title v-if="datosPaciente.length != 0">
+                  {{
+                    datosPaciente[0].nombres +
+                    " " +
+                    datosPaciente[0].apePat +
+                    " " +
+                    datosPaciente[0].apeMat
+                  }}
+                  | {{ vista }}</v-toolbar-title
+                >
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <v-spacer></v-spacer>
+                <v-dialog v-model="dialog" max-width="700px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="#1973a5"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      {{ actionBoton }}
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+                      <v-card-title>
+                        <span class="text-h5">{{ actionBoton }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-menu
+                                ref="menu"
+                                v-model="menu"
+                                :close-on-content-click="false"
+                                :return-value.sync="editedItem.date"
+                                transition="scale-transition"
+                                offset-y
+                                min-width="auto"
+                              >
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-text-field
+                                    v-model="editedItem.date"
+                                    label="Fecha"
+                                    prepend-icon="mdi-calendar"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                  ></v-text-field>
+                                </template>
+                                <v-date-picker
+                                  v-model="editedItem.date"
+                                  no-title
+                                  scrollable
+                                  :min="minimo"
+                                  :max="maximo"
+                                >
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="menu = false"
+                                  >
+                                    Cancel
+                                  </v-btn>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="$refs.menu.save(editedItem.date)"
+                                  >
+                                    OK
+                                  </v-btn>
+                                </v-date-picker>
+                              </v-menu>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="8">
+                              <v-text-field
+                                v-model="editedItem.razonExclu"
+                                :rules="[rules.required, rules.counter]"
+                                label="Razón o Motivo"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.observa"
+                                :rules="[rules.required, rules.counter]"
+                                label="Observación"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="closeFormAdmin"
+                        >
+                          Cancelar
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="saveFormExclu"
+                        >
+                          Guardar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-form>
+                  </v-card>
+                </v-dialog>
+                <!--Editar Eclusion-->
+                <v-dialog v-model="dialogEditExclu" max-width="700px">
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-btn
+                      color="#1973a5"
+                      dark
+                      class="mb-2"
+                      v-bind="attrs"
+                      v-on="on"
+                    >
+                      {{ actionBoton }}
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-form ref="form" v-model="valid" lazy-validation>
+                      <v-card-title>
+                        <span class="text-h5">{{ actionBoton }}</span>
+                      </v-card-title>
+                      <v-card-text>
+                        <v-container>
+                          <v-row>
+                            <v-col cols="12" sm="6" md="4">
+                              <v-menu
+                                ref="menu"
+                                v-model="menu"
+                                :close-on-content-click="false"
+                                :return-value.sync="editedItem.date"
+                                transition="scale-transition"
+                                offset-y
+                                min-width="auto"
+                              >
+                                <template v-slot:activator="{ on, attrs }">
+                                  <v-text-field
+                                    v-model="editedItem.date"
+                                    label="Fecha"
+                                    prepend-icon="mdi-calendar"
+                                    readonly
+                                    v-bind="attrs"
+                                    v-on="on"
+                                  ></v-text-field>
+                                </template>
+                                <v-date-picker
+                                  v-model="editedItem.date"
+                                  no-title
+                                  scrollable
+                                  :min="minimo"
+                                  :max="maximo"
+                                >
+                                  <v-spacer></v-spacer>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="menu = false"
+                                  >
+                                    Cancel
+                                  </v-btn>
+                                  <v-btn
+                                    text
+                                    color="primary"
+                                    @click="$refs.menu.save(editedItem.date)"
+                                  >
+                                    OK
+                                  </v-btn>
+                                </v-date-picker>
+                              </v-menu>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="8">
+                              <v-text-field
+                                v-model="editedItem.razonExclu"
+                                :rules="[rules.required, rules.counter]"
+                                label="Razón o Motivo"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="12" md="12">
+                              <v-text-field
+                                v-model="editedItem.observa"
+                                :rules="[rules.required, rules.counter]"
+                                label="Observación"
+                                :maxlength="maxdat"
+                              ></v-text-field>
+                            </v-col>
+                          </v-row>
+                        </v-container>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="closeFormExclu"
+                        >
+                          Cancelar
+                        </v-btn>
+                        <v-btn
+                          color="blue darken-1"
+                          text
+                          @click="editExclu"
+                        >
+                          editar
+                        </v-btn>
+                      </v-card-actions>
+                    </v-form>
+                  </v-card>
+                </v-dialog>
+                <!--fin de edicion de administracion-->
+                <v-dialog v-model="dialogDelete" max-width="500px">
+                  <v-card>
+                    <v-card-title class="text-h5"
+                      >Esta seguro de eliminar la Prescipción?</v-card-title
+                    >
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue darken-1" text @click="closeDelete"
+                        >Cancel</v-btn
+                      >
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="deleteItemConfirm"
+                        >OK</v-btn
+                      >
+                      <v-spacer></v-spacer>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-toolbar>
+            </template>
+            <template v-slot:[`item.actions`]="{ item }">
+              <v-icon small class="mr-2" @click="editItemExclu(item)">
+                mdi-pencil
+              </v-icon>
+              <!--<v-icon small @click="deleteItem(item)"> mdi-delete </v-icon>-->
             </template>
           </v-data-table>
         </v-card>
@@ -764,6 +1024,7 @@ export const RUTA_SERVIDOR = process.env.VUE_APP_RUTA_API;
 export default {
   data: () => ({
     datosEdit: "",
+    dialogEditExclu: false,
     dialogAviso: false,
     dataAdmin: "",
     datosPaciente: [],
@@ -815,6 +1076,8 @@ export default {
       dosHierro: "",
       viaHierro: "",
       via: "",
+      razonExclu:"",
+      observa: "",
     },
     dataex: "",
     defaultItem: {
@@ -828,6 +1091,8 @@ export default {
       dosHierro: "",
       viaHierro: "",
       via: "",
+      razonExclu: "",
+      observa: "",
     },
   }),
 
@@ -934,14 +1199,15 @@ export default {
 
     cabezeraExclu() {
       this.headers = [
-        { text: "Fecha", value: "calories" },
+        { text: "Fecha", value: "fechaExclu" },
         {
           text: "Razón o Motivo",
           align: "start",
           sortable: false,
-          value: "name",
+          value: "razonExclu",
         },
-        { text: "Observaciones", value: "calories" },
+        { text: "Observaciones", value: "ObservaExclu" },
+        { text: "Actions", value: "actions", sortable: false },
       ];
     },
 
@@ -997,6 +1263,20 @@ export default {
       this.datosEdit = item.url;
     },
 
+    editItemExclu(item) {
+      console.log("item", item);
+      //this.botonEditar = "1";
+      //this.editedIndex;
+      //this.editedIndex = this.desserts.indexOf(item);
+      this.editedItem.fechaExclu = item.fechaExclu;
+      this.editedItem.razonExclu = item.razonExclu;
+      this.editedItem.observa = item.ObservaExclu;
+      //this.editedItem = Object.assign({}, item);
+      console.log("editedItem", this.editedItem);
+      this.dialogEditExclu = true
+      this.datosEdit = item.url;
+    },
+
     deleteItem(item) {
       this.editedIndex = this.desserts.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -1022,6 +1302,14 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
+      });
+    },
+
+    closeFormExclu() {
+      this.dialogEditExclu = false;
+      this.$nextTick(() => {
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.editedIndex = -1;
       });
     },
 
@@ -1102,6 +1390,7 @@ export default {
               .then((res) => {
                 console.log("exito", res.status);
                 this.dialogDataApi = true;
+                this.close();
                 this.adm();
                 this.dialogEditAdm = false;
               })
@@ -1115,6 +1404,50 @@ export default {
               ? console.warn("lo sientimos no tenemos servicios")
               : console.warn("Error:", response);
           });
+    },
+
+    editExclu() {
+      
+      console.log("esto es para editar", this.datosEdit.split("/")[4]);
+      
+      axios
+        .post(RUTA_SERVIDOR+"/api/token/", {
+          username: "cnsr",
+          password: "123456",
+        })
+        .then((response) => {
+          this.auth = "Bearer " + response.data.access;
+          axios
+            .patch(
+              RUTA_SERVIDOR+"/excluAnemia/" +
+                this.datosEdit.split("/")[4] +
+                "/",
+              {
+                fechaExclu: this.editedItem.fechaExclu,
+                razonExclu: this.editedItem.razonExclu,
+                ObservaExclu: this.editedItem.observa,
+              },
+              {
+                headers: { Authorization: this.auth },
+              }
+            )
+            .then((res) => {
+              console.log("exito", res.status);
+              this.close();
+              this.dialogDataApi = true;
+              this.exclu();
+              this.dialogEditExclu = false;
+            })
+            .catch((res) => {
+              console.warn("Error:", res);
+              this.dialog = false;
+            });
+        })
+        .catch((response) => {
+          response === 404
+            ? console.warn("lo sientimos no tenemos servicios")
+            : console.warn("Error:", response);
+        });
     },
 
     close() {
@@ -1258,6 +1591,55 @@ export default {
       //console.log('holaaaaaaaa',this.editedItem)
     },
 
+    saveFormExclu() {
+      console.log("click");
+      console.log(this.datosPaciente[0].url)
+      console.log(this.editedItem)
+      if (
+        !this.editedItem.razonExclu ||
+        !this.editedItem.observa 
+      ) {
+        this.$refs.form.validate();
+        console.log("validate");
+      } else {
+        axios
+          .post(RUTA_SERVIDOR+"/api/token/", {
+            username: "cnsr",
+            password: "123456",
+          })
+          .then((response) => {
+            this.auth = "Bearer " + response.data.access;
+            axios
+              .post(
+                RUTA_SERVIDOR+"/excluAnemia/",
+                {
+                  paciente: this.datosPaciente[0].url,
+                  fechaExclu: this.editedItem.date,
+                  razonExclu: this.editedItem.razonExclu,
+                  ObservaExclu: this.editedItem.observa
+                },
+                {
+                  headers: { Authorization: this.auth },
+                }
+              )
+              .then((res) => {
+                console.log("exito", res.status);
+                this.close();
+                this.exclu();
+              })
+              .catch((res) => {
+                console.warn("Error:", res);
+                this.dialog = false;
+              });
+          })
+          .catch((response) => {
+            response === 404
+              ? console.warn("lo sientimos no tenemos servicios")
+              : console.warn("Error:", response);
+          });
+      }
+    },
+
     pres() {
       this.adminForm = "0";
       this.vista = "Prescipción Anemia";
@@ -1341,10 +1723,43 @@ export default {
     },
 
     exclu() {
+      this.adminForm = "2";
       this.vista = "Exclusion Protocolo";
       this.cabezeraExclu();
       this.initialize();
-      this.actionBoton = "Registro Exclusion";
+      this.actionBoton = "Registro Exclusión";
+      this.dialogDataApi = true;
+      axios
+        .post(RUTA_SERVIDOR+"/api/token/", {
+          username: "cnsr",
+          password: "123456",
+        })
+        .then((response) => {
+          this.auth = "Bearer " + response.data.access;
+          axios
+            .get(
+              RUTA_SERVIDOR+"/excluAnemia/?search=" +
+                this.datosPaciente[0].url.split("/")[4],
+              {
+                headers: { Authorization: this.auth },
+              }
+            )
+            .then((res) => {
+              this.desserts = res.data;
+              //console.log(this.dataAdmi);
+              console.log("datosAministra", this.desserts);
+              this.dialogDataApi = false;
+            })
+            .catch((res) => {
+              console.warn("Error:", res);
+              this.dialog = false;
+            });
+        })
+        .catch((response) => {
+          response === 404
+            ? console.warn("lo sientimos no tenemos servicios")
+            : console.warn("Error:", response);
+        });
     },
 
     mov() {
